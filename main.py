@@ -2,6 +2,7 @@ import json
 import glob
 import re
 import time
+from collections import defaultdict
 
 ## Globals
 messages_path = "messages"
@@ -17,7 +18,8 @@ max_length = None  # Max message length; None if infinite
 limit = None  # Max messages to dump; None if infinite
 command_prefixes = ["$", "%", "!", ".", "#"]
 symbols = ["\n", "**", "<@", "<#", "`", "://"]
-messages = []
+ignored_channels = ["1005103548939370508"]
+messages = defaultdict(list)
 
 
 def main():
@@ -25,6 +27,14 @@ def main():
     seen_messages = dict.fromkeys([]) if filter_duplicates else None
 
     for file in glob.glob(f"{messages_path}/**/messages.json", recursive=True):
+        channel_id = re.search(r"messages/c(\d+)/messages\.json", file)
+        if not channel_id:
+            continue
+
+        channel_id = channel_id.group(1)
+        if channel_id in ignored_channels:
+            continue
+
         with open(file, "r") as f:
             _messages = json.load(f)
             contents = list(map(lambda d: d["Contents"].strip(), _messages))
@@ -44,9 +54,10 @@ def main():
                 continue
 
             for content in contents:
-                if limit and len(messages) >= limit:
+                if limit and sum(len(msgs) for msgs in messages.values()) >= limit:
                     break
-                messages.append(content)
+                messages[channel_id].append(content)
+
     print(f"Took {round(time.time() - start, 2)} seconds")
 
 
@@ -119,6 +130,8 @@ def clean_message(msg):
 if __name__ == "__main__":
     main()
     with open("dump.json", "w+", encoding="utf-8") as f:
-        json.dump(sorted(messages), f, ensure_ascii=False, indent=2)
+        output = {k: sorted(v) for k, v in messages.items()}
+        json.dump(output, f, ensure_ascii=False, indent=2)
 
-    print(f"{len(messages)} messages dumped")
+    total_messages = sum(len(msgs) for msgs in messages.values())
+    print(f"{total_messages} messages dumped across {len(messages)} channels")
