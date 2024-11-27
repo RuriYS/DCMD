@@ -3,9 +3,11 @@
 Discord Messages Dumper
 
 ## What is this?
+
 It's a simple script to dump all your messages from Discord into a plain JSON.
 
-## Data Preperation
+## Data Preparation
+
 1. Go to Privacy & Safety on your Discord's user settings.
 
     ![img](images/user-settings.png)
@@ -19,33 +21,48 @@ It's a simple script to dump all your messages from Discord into a plain JSON.
 ## Usage
 
 1. Download this repository and extract it or run `git clone https://github.com/RuriYS/DCMD.git`
-1. Download `package.zip` if you haven't already from the email Discord sent 
-1. Copy `messages` folder into `DCMC`
-1. Run the script:
+2. Download `package.zip` if you haven't already from the email Discord sent 
+3. Copy `messages` folder into `DCMD`
+4. Configure your filters in `config.json`:
+
+```json
+{
+    "messages_path": "messages",
+    "filters": {
+        "links": false,      // Remove messages with URLs
+        "emojis": false,     // Remove messages with emojis
+        "commands": true,    // Remove messages starting with $, %, !, ., #
+        "symbols": false,    // Remove messages containing special symbols
+        "multilines": false, // Remove messages with multiple lines
+        "duplicates": true,  // Remove duplicate messages
+        "numbers": false     // Remove messages containing only numbers
+    },
+    "length": {
+        "min": 1,           // Minimum word count
+        "max": null         // Maximum word count (null for unlimited)
+    },
+    "limit": null,          // Maximum messages to dump (null for unlimited)
+    "ignored_channels": ["1005103548939370508"]  // Channel IDs to ignore
+}
+```
+
+5. Run the script:
 
 ```bash
 python main.py
 ```
-3. Filtered messages will be saved to `dump.json`
 
-## Configuring Filters
+6. Filtered messages will be saved to `dump.json` organized by channel ID:
 
-Configure filters at the top of `main.py`:
-
-```python
-filter_links = False       # Remove messages with URLs
-filter_emojis = False      # Remove messages with emojis
-filter_commands = False    # Remove messages starting with $, %, !, ., #
-filter_symbols = False     # Remove messages containing special symbols
-filter_multilines = False  # Remove messages with multiple lines
-filter_duplicates = False  # Remove duplicate messages
-filter_numbers = False     # Remove messages containing only numbers
-```
-
-### Other Settings
-
-```python
-min_length = 1            # Minimum token count
-max_length = None         # Maximum token count (None for unlimited)
-limit = None              # Maximum messages to dump (None for unlimited)
+```json
+{
+    "channel_id_1": [
+        "message 1",
+        "message 2"
+    ],
+    "channel_id_2": [
+        "message 1",
+        "message 2"
+    ]
+}
 ```
