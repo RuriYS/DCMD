@@ -57,18 +57,18 @@ It's a simple script to dump all your messages from Discord into a plain JSON.
 ```bash
 python main.py
 ```
-6. Filtered messages will be saved to `dump.json` organized by channel ID:
+6. Filtered messages will be saved to `dump.json`:
 ```json
-{
-    "channel_id_1": [
-        "message 1",
-        "message 2"
-    ],
-    "channel_id_2": [
-        "message 1",
-        "message 2"
-    ]
-}
+[
+    {
+        "channel_id": "990518804062810133",
+        "channel_name": "general",
+        "guild_name": "DM or Guild Name",
+        "messages": [
+            "message", ...
+        ]
+    }, ...
+]
 ```
 
 ## Output Format

@@ -175,17 +175,37 @@ def clean_message(msg, config):
 
 def save_messages(messages, config):
     if "json" in config["output"]:
+        channel_index = load_channel_index()
+        formatted_output = []
+
+        for channel_id, msgs in messages.items():
+            channel_info = channel_index.get(channel_id, "Unknown Channel")
+            guild_name = get_guild_name(channel_info) or "Unknown Guild"
+            channel_name = (
+                channel_info.split(" in ")[0]
+                if " in " in channel_info
+                else channel_info
+            )
+
+            formatted_output.append(
+                {
+                    "channel_id": channel_id,
+                    "channel_name": channel_name,
+                    "guild_name": guild_name,
+                    "messages": sorted(msgs),
+                }
+            )
+
         with open("dump.json", "w+", encoding="utf-8") as f:
-            output = {k: sorted(v) for k, v in messages.items()}
-            json.dump(output, f, ensure_ascii=False, indent=2)
-            print("Saved to dump.json")
+            json.dump(formatted_output, f, ensure_ascii=False, indent=2)
+        print("Saved to dump.json")
 
     if "txt" in config["output"]:
         with open("dump.txt", "w+", encoding="utf-8") as f:
             for channel_messages in messages.values():
                 for msg in sorted(channel_messages):
                     f.write(f"{msg}\n")
-            print("Saved to dump.txt")
+        print("Saved to dump.txt")
 
 
 if __name__ == "__main__":
