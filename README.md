@@ -28,19 +28,27 @@ It's a simple script to dump all your messages from Discord into a plain JSON.
     "filters": {
         "links": false,      // Remove messages with URLs
         "emojis": false,     // Remove messages with emojis
-        "commands": true,    // Remove messages starting with $, %, !, ., #
-        "symbols": false,    // Remove messages containing special symbols
+        "commands": true,    // Remove messages starting with command prefixes
+        "words": false,      // Remove messages containing filtered words
         "multilines": false, // Remove messages with multiple lines
         "duplicates": true,  // Remove duplicate messages
         "numbers": false     // Remove messages containing only numbers
     },
     "length": {
-        "min": 1,           // Minimum word count
-        "max": null         // Maximum word count (null for unlimited)
+        "min": 1,           // Minimum token count
+        "max": null         // Maximum token count (null for unlimited)
     },
     "limit": null,          // Maximum messages to dump (null for unlimited)
-    "ignored_channels": ["1005103548939370508"],  // Channel IDs to ignore
-    "ignored_guilds": ["A certain guild"],     // Guild names to ignore
+    "command_prefixes": ["$", "%", "!", ".", "#", "<a:"],  // Command prefixes to filter
+    "filtered_words": ["\n", "**", "<@", "<#", "`", "://"],  // Words to filter
+    "channels": {
+        "whitelist": [],    // Only include these channel IDs (if empty, use blacklist)
+        "blacklist": []     // Ignore these channel IDs
+    },
+    "guilds": {
+        "whitelist": [],    // Only include these guild names (if empty, use blacklist)
+        "blacklist": ["A certain guild"]  // Ignore these guild names
+    },
     "ignore_dms": false     // Set to true to ignore all DMs
 }
 ```
@@ -65,15 +73,21 @@ python main.py
 ## Message Filtering
 
 ### Channel and Guild Filtering
-- **Ignored Channels**: Specific channels can be ignored by adding their IDs to `ignored_channels`
-- **Ignored Guilds**: Entire servers can be ignored by adding their names to `ignored_guilds`
+- **Channel Filtering**: 
+  - Use whitelist to only include specific channels
+  - Use blacklist to exclude specific channels
+  - If whitelist is not empty, only whitelisted channels are included
+  - If whitelist is empty but blacklist is populated, all channels except blacklisted ones are included
+  - If both are empty, all channels are included
+- **Guild Filtering**: 
+  - Same whitelist/blacklist logic as channels but applies to guild names
 - **DM Filtering**: Set `ignore_dms` to `true` to skip all direct messages
 
 ### Content Filtering
 - **Links**: Remove messages containing URLs
 - **Emojis**: Remove messages containing emoji
-- **Commands**: Remove messages starting with command prefixes ($, %, !, ., #)
-- **Symbols**: Remove messages containing special symbols (\n, **, <@, <#, `, ://)
+- **Commands**: Remove messages starting with command prefixes
+- **Words**: Remove messages containing any filtered words
 - **Multilines**: Remove messages containing multiple lines
 - **Numbers**: Remove messages containing only numbers
 - **Duplicates**: Remove duplicate messages across all channels

@@ -24,8 +24,8 @@ def main():
 
         channel_id = channel_id.group(1)
 
-        # Check if channel is in ignored list
-        if channel_id in config["ignored_channels"]:
+        # Check channel whitelist/blacklist
+        if not filter_by_list(channel_id, config["channels"]):
             continue
 
         # Check guild filtering
@@ -34,8 +34,8 @@ def main():
             # Skip if it's a DM and ignore_dms is True
             if guild_name == "DM" and config.get("ignore_dms", False):
                 continue
-            # Skip if guild is in ignored list
-            if guild_name in config["ignored_guilds"]:
+            # Check guild whitelist/blacklist
+            if not filter_by_list(guild_name, config["guilds"]):
                 continue
 
         with open(file, "r") as f:
@@ -80,6 +80,15 @@ def load_channel_index():
     except FileNotFoundError:
         print("Warning: index.json not found in messages directory")
         return {}
+
+
+def filter_by_list(item, config_section):
+    """Helper function to handle whitelist/blacklist logic"""
+    if config_section["whitelist"]:
+        return item in config_section["whitelist"]
+    if config_section["blacklist"]:
+        return item not in config_section["blacklist"]
+    return True
 
 
 def get_guild_name(channel_info):
@@ -127,9 +136,9 @@ def filter_message(msg: str, config):
         ):
             return False
 
-    # Filter symbols
-    if config["filters"]["symbols"]:
-        if any(symbol in msg for symbol in config["symbols"]):
+    # Filter words
+    if config["filters"]["words"]:
+        if any(word in msg for word in config["filtered_words"]):
             return False
 
     # Filter multilines
