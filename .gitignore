@@ -1,2 +1,6 @@
-messages/
-dump.json
+*
+!images/
+!main.py
+!.gitignore
+!LICENSE.md
+!README.md
