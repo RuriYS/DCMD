@@ -6,7 +6,9 @@ from collections import defaultdict
 
 
 def main():
+    # Load configuration and channel index
     config = load_config()
+    channel_index = load_channel_index()
 
     # Initialize message storage
     messages = defaultdict(list)
@@ -21,8 +23,20 @@ def main():
             continue
 
         channel_id = channel_id.group(1)
+
+        # Check if channel is in ignored list
         if channel_id in config["ignored_channels"]:
             continue
+
+        # Check guild filtering
+        guild_name = get_guild_name(channel_index.get(channel_id))
+        if guild_name:
+            # Skip if it's a DM and ignore_dms is True
+            if guild_name == "DM" and config.get("ignore_dms", False):
+                continue
+            # Skip if guild is in ignored list
+            if guild_name in config["ignored_guilds"]:
+                continue
 
         with open(file, "r") as f:
             _messages = json.load(f)
@@ -57,6 +71,31 @@ def main():
 def load_config():
     with open("config.json", "r") as f:
         return json.load(f)
+
+
+def load_channel_index():
+    try:
+        with open("messages/index.json", "r", encoding="utf-8") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        print("Warning: index.json not found in messages directory")
+        return {}
+
+
+def get_guild_name(channel_info):
+    if not channel_info:
+        return None
+
+    # Check if it's a DM
+    if channel_info.startswith("Direct Message"):
+        return "DM"
+
+    # Try to extract guild name
+    match = re.search(r"(?:Unknown channel in |.* in )(.+)$", channel_info)
+    if match:
+        return match.group(1)
+
+    return None
 
 
 def filter_message(msg: str, config):
