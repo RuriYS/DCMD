@@ -39,7 +39,7 @@ It's a simple script to dump all your messages from Discord into a plain JSON.
         "max": null         // Maximum token count (null for unlimited)
     },
     "limit": null,          // Maximum messages to dump (null for unlimited)
-    "format": ["json", "txt"],                              // Generate both formats
+    "output": ["json", "txt"],                              // Generate both formats
     "command_prefixes": ["$", "%", "!", ".", "#", "<a:"],   // Command prefixes to filter
     "filtered_words": ["\n", "**", "<@", "<#", "`", "://"], // Words to filter
     "channels": {
@@ -72,7 +72,7 @@ python main.py
 ```
 
 ## Output Format
-The script supports two output formats, configurable via the `format` option in `config.json`:
+The script supports two output formats, configurable via the `output` option in `config.json`:
 - `json`: Messages organized by channel ID in a JSON file (dump.json)
 - `txt`: Messages in a flat text file, one per line (dump.txt)
 
