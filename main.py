@@ -173,11 +173,23 @@ def clean_message(msg, config):
     return msg
 
 
+def save_messages(messages, config):
+    if "json" in config["output"]:
+        with open("dump.json", "w+", encoding="utf-8") as f:
+            output = {k: sorted(v) for k, v in messages.items()}
+            json.dump(output, f, ensure_ascii=False, indent=2)
+            print("Saved to dump.json")
+
+    if "txt" in config["output"]:
+        with open("dump.txt", "w+", encoding="utf-8") as f:
+            for channel_messages in messages.values():
+                for msg in sorted(channel_messages):
+                    f.write(f"{msg}\n")
+            print("Saved to dump.txt")
+
+
 if __name__ == "__main__":
     messages = main()
-    with open("dump.json", "w+", encoding="utf-8") as f:
-        output = {k: sorted(v) for k, v in messages.items()}
-        json.dump(output, f, ensure_ascii=False, indent=2)
-
+    save_messages(messages, load_config())
     total_messages = sum(len(msgs) for msgs in messages.values())
     print(f"{total_messages} messages dumped across {len(messages)} channels")
